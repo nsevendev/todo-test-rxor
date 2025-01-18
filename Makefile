@@ -31,7 +31,7 @@ logs: ## Show the logs of the container
 t: ## Connect to the container
 	$(DOCKER_COMP) exec $(CONTAINER_APP) bash
 
-run: ## Run a command "c" in the container
+run: ## Run a command bun with prameters in variable "c=" in the container
 	$(BUN) $(c)
 
 lint: ## Start the linter
