@@ -1,0 +1,14 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: todo-test-rxor
+    working_dir: /app
+    environment:
+      REACT_VERSION: "^18.0.0"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
