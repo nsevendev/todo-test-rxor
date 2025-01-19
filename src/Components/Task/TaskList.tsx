@@ -1,29 +1,30 @@
-import { TaskServiceInterface, TaskType } from "../Modules/Task/TaskType.ts";
+import {TaskModuleName, TaskServiceInterface, TaskType} from "../../Modules/Task/TaskType.ts";
 import { rxservice, useRxStore } from "rxor";
 
 export const TaskList = () => {
-  const taskList = useRxStore<TaskType[]>("taskStore");
+  const taskList = useRxStore<TaskType[]>(TaskModuleName.TASK_STORE);
   return (
     <div className={"flex flex-col items-center mt-20"}>
       <div>
         {taskList && taskList.length > 0 ? (
           taskList.map((task: TaskType) => (
-            <div key={task.id} className={"flex justify-start mb-8"}>
+            <div key={task.id} className={"flex justify-start items-center mb-10"}>
               <input
                 type="checkbox"
+                id={`${task.id}`}
                 checked={task.done || false}
                 onChange={() =>
                   rxservice<TaskServiceInterface>(
                     "taskService"
-                  ).toggleCheckTask(task.id)
+                  ).toggleCheck(task.id)
                 }
                 className="cursor-pointer mr-4"
               />
-              <p className={"text-xl"}>{task.title}</p>
+              <label htmlFor={`${task.id}`} className={"text-xl mr-8 cursor-pointer"}>{task.title}</label>
               <button
-                className={"text-sm bg-red-500 px-4 ml-4 rounded"}
+                className={"text-sm bg-red-500 px-4 h-fit ml-auto rounded"}
                 onClick={() =>
-                  rxservice<TaskServiceInterface>("taskService").removeTask(
+                  rxservice<TaskServiceInterface>("taskService").delete(
                     task.id
                   )
                 }
@@ -32,9 +33,8 @@ export const TaskList = () => {
               </button>
             </div>
           ))
-        ) : (
-          <p className={"text-center"}>...</p>
-        )}
+        ) : null
+        }
       </div>
     </div>
   );

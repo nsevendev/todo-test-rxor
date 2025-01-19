@@ -1,5 +1,6 @@
 import { ReaService, ReaXor } from "rxor";
 import { TaskServiceInterface, TaskType } from "./TaskType.ts";
+import {map, Observable} from "rxjs";
 
 export class TaskService extends ReaService<TaskServiceInterface> {
   private readonly taskList: ReaXor<TaskType[]>;
@@ -9,11 +10,11 @@ export class TaskService extends ReaService<TaskServiceInterface> {
     this.taskList = taskList;
   }
 
-  getTaskStore = (): ReaXor<TaskType[]> => {
+  getStore = (): ReaXor<TaskType[]> => {
     return this.taskList;
   };
 
-  createObjectTask = (title: string): TaskType => {
+  createObject = (title: string): TaskType => {
     return {
       id: this.generateUniqueId(),
       title,
@@ -21,21 +22,48 @@ export class TaskService extends ReaService<TaskServiceInterface> {
     } as TaskType;
   };
 
-  addTask = (task: TaskType): void => {
+  add = (task: TaskType): void => {
     this.taskList.value = [...this.taskList.value, task];
   };
 
-  toggleCheckTask = (id: number): void => {
+  toggleCheck = (id: number): void => {
     this.taskList.value = this.taskList.value.map((todo: TaskType) =>
       todo.id === id ? { ...todo, done: !todo.done } : todo
     );
   };
 
-  removeTask = (id: number): void => {
+  delete = (id: number): void => {
     this.taskList.value = this.taskList.value.filter(
       (task: TaskType) => task.id !== id
     );
   };
+  
+  deleteChecked = (): void => {
+    this.taskList.value = this.taskList.value.filter((todo: TaskType) => !todo.done)
+  }
+  
+  deleteAll = (): void => {
+    this.taskList.value = []
+  }
+  
+  toggleCheckAll = (check: boolean = true): void => {
+    this.taskList.value = this.taskList.value.map(
+        (todo: TaskType) =>
+            check ? {...todo, done: true} : {...todo, done: false}
+    )
+  }
+  
+  isAllChecked = (): Observable<boolean> => {
+    return this.taskList.reaxar.pipe<boolean>(
+        map((todos: TaskType[]) => {
+          if (todos.length === 0) {
+            return false;
+          }
+          
+          return todos.every((todo: TaskType) => todo.done);
+        }),
+    )
+  }
 
   private generateUniqueId = (): number => {
     let id: number;
